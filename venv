@@ -1,0 +1,133 @@
+#!/bin/sh
+# venv 1.0
+# Quick hack: manage virtualenvs
+# Desc: lists, creates and deletes virtualenvs in a specified directory
+#       autocompletes env names
+#       can downgrade to pip version of choice
+#       can edit & will apply .bash_profile files inside virtualenvs
+#
+# Install:
+#       write this file as ~/.venv
+#       mkdir -p ~/.venvs
+#       add to ~/.profile: source ~/.venv
+
+# Config
+ENVDIR="$HOME/.venvs/"
+VIRTUALENV=`which virtualenv`
+RM=`which rm`
+PIP="1.4.1"
+
+# The venv
+venv() {
+    # Help (or blank)
+    if [ "$1" = "help" ] || [ "$1" = "" ]
+    then
+        echo "# venv"
+        echo "# use tab complete for <name>"
+        echo
+        echo "Enter a virtualenv: venv <name>"
+        echo "Create a virtualenv: venv create <name>"
+        echo "Delete a virtualenv: venv delete <name>"
+        echo "List virtualenvs: venv list"
+        return 0
+    fi
+
+    # Listing
+    if [ "$1" = "list" ]
+    then
+        ls -l $ENVDIR
+        return 0
+    fi
+
+    # Creating
+    if [ "$1" = "create" ]
+    then
+        if [ "$2" = "" ]
+        then
+            echo "Usage: venv create <name>"
+            return 1
+        else
+            NAME=$2
+            if [ "$2" = "list" ] || [ "$2" = "create" ] || [ "$2" = "delete" ] || [ "$2" = "help" ]
+            then
+                echo "Cannot use names: list, create or delete"
+                return 1
+            fi
+
+            echo "Creating virtualenv in $ENVDIR$NAME/"
+            $VIRTUALENV "$ENVDIR$NAME/"
+            if [ ! "$PIP" = "" ]
+            then
+                $ENVDIR$NAME/bin/pip install pip==$PIP --upgrade
+            fi
+            return 0
+        fi
+    fi
+
+    # Deleting
+    if [ "$1" = "delete" ]
+    then
+        if [ "$2" = "" ]
+        then
+            echo "Usage: venv delete <name>"
+            return 1
+        else
+            NAME=$2
+            echo "About to delete virtualenv in $ENVDIR$NAME/"
+            read -p "Are you sure? [Y/n] " -n 1 -r
+            if [ "$REPLY" = "" ] || [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]
+            then
+                echo "Deleting  $ENVDIR$NAME/"
+                $RM -rf "$ENVDIR$NAME/"
+                return 0
+            else
+                return 0
+            fi
+        fi
+    fi
+
+    # Editing
+    if [ "$1" = "edit" ]
+    then
+        if [ "$2" = "" ]
+        then
+            echo "Usage: venv edit <name>"
+            return 1
+        else
+            NAME=$2
+            $EDITOR $ENVDIR$NAME/.bash_profile
+            return 0
+        fi
+    fi
+
+    # Else: enter
+    NAME=$1
+    echo "Loading virtualenv in $ENVDIR$NAME/"
+    source "$ENVDIR$NAME/bin/activate"
+    if [ -f "$ENVDIR$NAME/.bash_profile" ]
+    then
+        source "$ENVDIR$NAME/.bash_profile"
+    fi
+}
+
+# Autocomplete
+_complete_venv () {
+    local cur
+
+    # List current envs
+    ENVS=`find $ENVDIR -maxdepth 1 -type d | grep -oE '/[a-zA-Z0-9]+$' | grep -oE '[a-zA-Z0-9]+'`
+
+    # Autocomplete reply
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+
+    if [ "$1" = "venv" ] && ([ "$3" = "venv" ] || [ "$3" = "delete" ] || [ "$3" = "edit" ])
+    then
+        COMPREPLY=( $( compgen -W '$ENVS' -- $cur ) )
+    fi
+
+    return 0
+}
+# Set autocomplete up
+complete -F _complete_venv venv
+
