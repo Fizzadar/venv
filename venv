@@ -1,5 +1,5 @@
 #!/bin/sh
-# venv 1.0
+# venv 1.1
 # Quick hack: manage virtualenvs
 # Desc: lists, creates and deletes virtualenvs in a specified directory
 #       autocompletes env names
