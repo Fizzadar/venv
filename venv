@@ -16,6 +16,8 @@ ENVDIR="$HOME/.venvs/"
 VIRTUALENV=`which virtualenv`
 RM=`which rm`
 PIP="1.4.1"
+VENV_REGEX="[a-zA-Z0-9_]+"
+
 
 # The venv
 venv() {
@@ -35,7 +37,7 @@ venv() {
     # Listing
     if [ "$1" = "list" ]
     then
-        ls -l $ENVDIR
+        find $ENVDIR -maxdepth 1 -type d | grep -oE "/$VENV_REGEX$" | grep -oE $VENV_REGEX
         return 0
     fi
 
@@ -119,7 +121,7 @@ _complete_venv () {
     local cur
 
     # List current envs
-    ENVS=`find $ENVDIR -maxdepth 1 -type d | grep -oE '/[a-zA-Z0-9_]+$' | grep -oE '[a-zA-Z0-9_]+'`
+    ENVS=`find $ENVDIR -maxdepth 1 -type d | grep -oE "/$VENV_REGEX$" | grep -oE $VENV_REGEX`
 
     # Autocomplete reply
     COMPREPLY=()
