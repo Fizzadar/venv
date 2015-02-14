@@ -1,5 +1,5 @@
 #!/bin/sh
-# venv 1.1
+# venv
 # Quick hack: manage virtualenvs
 # Desc: lists, creates and deletes virtualenvs in a specified directory
 #       autocompletes env names
@@ -12,6 +12,7 @@
 #       add to ~/.profile: source ~/.venv
 
 # Config
+VERSION="1.2"
 ENVDIR="$HOME/.venvs/"
 VIRTUALENV=`which virtualenv`
 RM=`which rm`
@@ -24,7 +25,7 @@ venv() {
     # Help (or blank)
     if [ "$1" = "help" ] || [ "$1" = "" ]
     then
-        echo "# venv"
+        echo "# venv $VERSION"
         echo "# use tab complete for <name>"
         echo
         echo "Enter a virtualenv: venv <name>"
