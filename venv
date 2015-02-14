@@ -60,7 +60,9 @@ venv() {
             then
                 $ENVDIR$NAME/bin/pip install pip==$PIP --upgrade
             fi
-            return 0
+
+            # Now enter
+            venv enter $NAME
         fi
     fi
 
@@ -115,7 +117,7 @@ _complete_venv () {
     local cur
 
     # List current envs
-    ENVS=`find $ENVDIR -maxdepth 1 -type d | grep -oE '/[a-zA-Z0-9]+$' | grep -oE '[a-zA-Z0-9]+'`
+    ENVS=`find $ENVDIR -maxdepth 1 -type d | grep -oE '/[a-zA-Z0-9_]+$' | grep -oE '[a-zA-Z0-9_]+'`
 
     # Autocomplete reply
     COMPREPLY=()
