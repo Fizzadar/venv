@@ -2,20 +2,20 @@
 
 A super simple virtualenv manager.
 
+
+## Use
+
 ```sh
-# <name> will autocomplete
+# venv
+# use tab complete for <name>
 
-# Enter a venv
-venv <name>
+Enter a virtualenv: venv <name>
+Create a virtualenv: venv create <name>
+Delete a virtualenv: venv delete <name>
+List virtualenvs: venv list
+```
 
-# Create (& enter) a new venv
-venv create <new_name>
 
-# Edit a venv's .bash_profile
-venv edit <name>
+## Install
 
-# Delete a venv
-venv delete <name>
-
-# List venv's
-venv list
+Link/copy `venv` -> `~/.venv` and add `source ~/.venv` to the end of `.bash_profile`.
