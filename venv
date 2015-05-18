@@ -47,10 +47,17 @@ venv() {
     then
         if [ "$2" = "" ]
         then
-            echo "Usage: venv create <name>"
+            echo "Usage: venv create <name or .>"
             return 1
         else
-            NAME=$2
+            if [ "$2" = "." ]
+            then
+                PWD=`pwd`
+                NAME=`basename $PWD`
+            else
+                NAME=$2
+            fi
+
             if [ "$2" = "list" ] || [ "$2" = "create" ] || [ "$2" = "delete" ] || [ "$2" = "help" ]
             then
                 echo "Cannot use names: list, create or delete"
