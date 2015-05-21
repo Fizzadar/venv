@@ -17,7 +17,7 @@ ENVDIR="$HOME/.venvs/"
 VIRTUALENV=`which virtualenv`
 RM=`which rm`
 PIP="1.4.1"
-VENV_REGEX="[a-zA-Z0-9_]+"
+VENV_REGEX="[a-zA-Z0-9_-]+"
 
 
 # The venv
