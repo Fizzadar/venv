@@ -1,3 +1,7 @@
+# v1.3
+
++ Default name to current working directory
+
 # v1.2
 
 + Support underscore_venv_names
