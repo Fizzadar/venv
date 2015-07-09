@@ -12,7 +12,7 @@
 #       add to ~/.profile: source ~/.venv
 
 # Config
-VERSION="1.2"
+VERSION="1.3"
 ENVDIR="$HOME/.venvs/"
 VIRTUALENV=`which virtualenv`
 RM=`which rm`
@@ -20,13 +20,26 @@ PIP="1.4.1"
 VENV_REGEX="[a-zA-Z0-9_-]+"
 
 
+get_name() {
+    if [ "$1" = "" ]
+    then
+        PWD=`pwd`
+        NAME=`basename $PWD`
+    else
+        NAME=$1
+    fi
+
+    echo $NAME
+}
+
+
 # The venv
 venv() {
     # Help (or blank)
-    if [ "$1" = "help" ] || [ "$1" = "" ]
+    if [ "$1" = "help" ]
     then
         echo "# venv $VERSION"
-        echo "# use tab complete for <name>"
+        echo "# use tab complete for <name>, defaults to the current directory name"
         echo
         echo "Enter a virtualenv: venv <name>"
         echo "Create a virtualenv: venv create <name>"
@@ -45,78 +58,60 @@ venv() {
     # Creating
     if [ "$1" = "create" ]
     then
-        if [ "$2" = "" ]
+        NAME=`get_name $2`
+
+        if [ "$2" = "list" ] || [ "$2" = "create" ] || [ "$2" = "delete" ] || [ "$2" = "help" ]
         then
-            echo "Usage: venv create <name or .>"
+            echo "Cannot use names: list, create or delete"
             return 1
-        else
-            if [ "$2" = "." ]
-            then
-                PWD=`pwd`
-                NAME=`basename $PWD`
-            else
-                NAME=$2
-            fi
-
-            if [ "$2" = "list" ] || [ "$2" = "create" ] || [ "$2" = "delete" ] || [ "$2" = "help" ]
-            then
-                echo "Cannot use names: list, create or delete"
-                return 1
-            fi
-
-            echo "Creating virtualenv in $ENVDIR$NAME/"
-            $VIRTUALENV "$ENVDIR$NAME/"
-            if [ ! "$PIP" = "" ]
-            then
-                $ENVDIR$NAME/bin/pip install pip==$PIP --upgrade
-            fi
-
-            # Enter the venv
-            venv $NAME
-            return 0
         fi
+
+        echo "Creating virtualenv in $ENVDIR$NAME/"
+        $VIRTUALENV "$ENVDIR$NAME/"
+        if [ ! "$PIP" = "" ]
+        then
+            $ENVDIR$NAME/bin/pip install pip==$PIP --upgrade
+        fi
+
+        # Enter the venv
+        venv $NAME
+        return 0
     fi
 
     # Deleting
     if [ "$1" = "delete" ]
     then
-        if [ "$2" = "" ]
+        NAME=`get_name $2`
+        echo "About to delete virtualenv in $ENVDIR$NAME/"
+        read -p "Are you sure? [Y/n] " -n 1 -r
+        if [ "$REPLY" = "" ] || [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]
         then
-            echo "Usage: venv delete <name>"
-            return 1
+            echo
+            echo "Deleting  $ENVDIR$NAME/"
+            $RM -rf "$ENVDIR$NAME/"
+            return 0
         else
-            NAME=$2
-            echo "About to delete virtualenv in $ENVDIR$NAME/"
-            read -p "Are you sure? [Y/n] " -n 1 -r
-            if [ "$REPLY" = "" ] || [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]
-            then
-                echo
-                echo "Deleting  $ENVDIR$NAME/"
-                $RM -rf "$ENVDIR$NAME/"
-                return 0
-            else
-                return 0
-            fi
+            return 0
         fi
     fi
 
     # Editing
     if [ "$1" = "edit" ]
     then
-        if [ "$2" = "" ]
-        then
-            echo "Usage: venv edit <name>"
-            return 1
-        else
-            NAME=$2
-            $EDITOR $ENVDIR$NAME/.bash_profile
-            return 0
-        fi
+        NAME=`get_name $2`
+        $EDITOR $ENVDIR$NAME/.bash_profile
+        return 0
     fi
 
     # Else: enter
-    NAME=$1
-    echo "Loading virtualenv in $ENVDIR$NAME/"
+    NAME=`get_name $1`
+    if [ ! -f "$ENVDIR$NAME/bin/activate" ]
+    then
+        echo "No virtualenv found in $ENVDIR$NAME/"
+        return 1
+    fi
+
+    echo "Loading virtualenv: $ENVDIR$NAME"
     source "$ENVDIR$NAME/bin/activate"
     if [ -f "$ENVDIR$NAME/.bash_profile" ]
     then
