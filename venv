@@ -12,7 +12,7 @@
 #       add to ~/.profile: source ~/.venv
 
 # Config
-VERSION="1.3"
+VERSION="1.4"
 ENVDIR="$HOME/.venvs/"
 VIRTUALENV=`which virtualenv`
 RM=`which rm`
@@ -22,8 +22,13 @@ VENV_REGEX="[a-zA-Z0-9_-]+"
 get_name() {
     if [ "$1" = "" ]
     then
-        PWD=`pwd`
-        NAME=`basename $PWD`
+        if [ -f .venv ]
+        then
+            NAME=`cat .venv`
+        else
+            PWD=`pwd`
+            NAME=`basename $PWD`
+        fi
     else
         NAME=$1
     fi
@@ -38,7 +43,7 @@ venv() {
     if [ "$1" = "help" ]
     then
         echo "# venv $VERSION"
-        echo "# use tab complete for <name>, defaults to the current directory name"
+        echo "# use tab complete for <name>, defaults to content of .venv or cwd name"
         echo
         echo "Enter a virtualenv: venv <name>"
         echo "Create a virtualenv: venv create <name>"
