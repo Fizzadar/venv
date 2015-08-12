@@ -7,7 +7,7 @@ A super simple virtualenv manager.
 
 ```sh
 # venv
-# use tab complete for <name>
+# use tab complete for <name>, defaults to content of .venv or cwd name
 
 Enter a virtualenv: venv <name>
 Create a virtualenv: venv create <name>

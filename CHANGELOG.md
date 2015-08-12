@@ -1,3 +1,7 @@
+# v1.4
+
++ If .venv file is present, default name to it's contents
+
 # v1.3
 
 + Default name to current working directory
