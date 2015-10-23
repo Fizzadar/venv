@@ -6,13 +6,14 @@ A super simple virtualenv manager.
 ## Use
 
 ```sh
-# venv
-# use tab complete for <name>, defaults to content of .venv or cwd name
+# venv 1.5
+# use tab complete for <name, defaults to contents of .venv or cwd name
 
-Enter a virtualenv: venv <name>
-Create a virtualenv: venv create <name>
-Delete a virtualenv: venv delete <name>
-List virtualenvs: venv list
+Usage:
+    venv <name>          Enter a virtualenv
+    venv create <name>   Create a virtualenv
+    venv delete <name>   Delete a virtualenv
+    venv list            List virtualenvs
 ```
 
 

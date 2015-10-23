@@ -12,7 +12,7 @@
 #       add to ~/.profile: source ~/.venv
 
 # Config
-VERSION="1.4"
+VERSION="1.5"
 ENVDIR="$HOME/.venvs/"
 VIRTUALENV=`which virtualenv`
 RM=`which rm`
@@ -20,10 +20,8 @@ VENV_REGEX="[a-zA-Z0-9_-]+"
 
 
 get_name() {
-    if [ "$1" = "" ]
-    then
-        if [ -f .venv ]
-        then
+    if [ "$1" = "" ]; then
+        if [ -f .venv ]; then
             NAME=`cat .venv`
         else
             PWD=`pwd`
@@ -42,52 +40,60 @@ venv() {
     # Help (or blank)
     if [ "$1" = "help" ]
     then
-        echo "# venv $VERSION"
-        echo "# use tab complete for <name>, defaults to content of .venv or cwd name"
-        echo
-        echo "Enter a virtualenv: venv <name>"
-        echo "Create a virtualenv: venv create <name>"
-        echo "Delete a virtualenv: venv delete <name>"
-        echo "List virtualenvs: venv list"
+        cat <<EOF
+# venv $VERSION
+# use tab complete for <name, defaults to contents of .venv or cwd name
+
+Usage:
+    venv <name>          Enter a virtualenv
+    venv create <name>   Create a virtualenv
+    venv delete <name>   Delete a virtualenv
+    venv list            List virtualenvs
+EOF
         return 0
     fi
 
     # Listing
-    if [ "$1" = "list" ]
-    then
-        find $ENVDIR -maxdepth 1 -type d | grep -oE "/$VENV_REGEX$" | grep -oE $VENV_REGEX
+    if [ "$1" = "list" ]; then
+        FILES=`find $ENVDIR -maxdepth 1 -type d | grep -oE "/$VENV_REGEX$" | grep -oE $VENV_REGEX`
+
+        echo "# Available virtualenvs:"
+        for file in $FILES; do
+            echo "--> $file"
+        done
+
         return 0
     fi
 
     # Creating
-    if [ "$1" = "create" ]
-    then
+    if [ "$1" = "create" ]; then
         NAME=`get_name $2`
 
-        if [ "$2" = "list" ] || [ "$2" = "create" ] || [ "$2" = "delete" ] || [ "$2" = "help" ]
-        then
-            echo "Cannot use names: list, create or delete"
+        if [ "$2" = "list" ] || [ "$2" = "create" ] || [ "$2" = "delete" ] || [ "$2" = "help" ]; then
+            echo "--> Cannot use names: list, create or delete"
             return 1
         fi
 
-        echo "Creating virtualenv in $ENVDIR$NAME/"
+        echo "--> Creating virtualenv in $ENVDIR$NAME/"
         $VIRTUALENV "$ENVDIR$NAME/"
 
         # Enter the venv
         venv $NAME
+
+        echo "--> Upgrading pip"
+        pip install pip --upgrade
+
         return 0
     fi
 
     # Deleting
-    if [ "$1" = "delete" ]
-    then
+    if [ "$1" = "delete" ]; then
         NAME=`get_name $2`
-        echo "About to delete virtualenv in $ENVDIR$NAME/"
+        echo "# About to delete virtualenv in $ENVDIR$NAME/"
         read -p "Are you sure? [Y/n] " -n 1 -r
-        if [ "$REPLY" = "" ] || [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]
-        then
+        if [ "$REPLY" = "" ] || [ "$REPLY" = "y" ] || [ "$REPLY" = "Y" ]; then
             echo
-            echo "Deleting  $ENVDIR$NAME/"
+            echo "--> Deleting  $ENVDIR$NAME/"
             $RM -rf "$ENVDIR$NAME/"
             return 0
         else
@@ -96,8 +102,7 @@ venv() {
     fi
 
     # Editing
-    if [ "$1" = "edit" ]
-    then
+    if [ "$1" = "edit" ]; then
         NAME=`get_name $2`
         $EDITOR $ENVDIR$NAME/.bash_profile
         return 0
@@ -105,16 +110,14 @@ venv() {
 
     # Else: enter
     NAME=`get_name $1`
-    if [ ! -f "$ENVDIR$NAME/bin/activate" ]
-    then
-        echo "No virtualenv found in $ENVDIR$NAME/"
+    if [ ! -f "$ENVDIR$NAME/bin/activate" ]; then
+        echo "--> No virtualenv found in $ENVDIR$NAME/"
         return 1
     fi
 
-    echo "Loading virtualenv: $ENVDIR$NAME"
+    echo "--> Loading virtualenv: $ENVDIR$NAME"
     source "$ENVDIR$NAME/bin/activate"
-    if [ -f "$ENVDIR$NAME/.bash_profile" ]
-    then
+    if [ -f "$ENVDIR$NAME/.bash_profile" ]; then
         source "$ENVDIR$NAME/.bash_profile"
     fi
 }
@@ -130,8 +133,7 @@ _complete_venv () {
     COMPREPLY=()
     cur=${COMP_WORDS[COMP_CWORD]}
 
-    if [ "$1" = "venv" ] && ([ "$3" = "venv" ] || [ "$3" = "delete" ] || [ "$3" = "edit" ])
-    then
+    if [ "$1" = "venv" ] && ([ "$3" = "venv" ] || [ "$3" = "delete" ] || [ "$3" = "edit" ]); then
         COMPREPLY=( $( compgen -W '$ENVS' -- $cur ) )
     fi
 
