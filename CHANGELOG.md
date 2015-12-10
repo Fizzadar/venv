@@ -1,3 +1,7 @@
+# v1.5
+
++ Remove global `get_name` function (renamed to `_venv_get_name`
+
 # v1.4
 
 + If .venv file is present, default name to it's contents
