@@ -14,8 +14,13 @@
 # Config
 VERSION="1.5"
 ENVDIR="$HOME/.venvs/"
+
+# Shortcuts
 VIRTUALENV=`which virtualenv`
+PYTHON=`which python`
 RM=`which rm`
+
+# Venv folder regex
 VENV_REGEX="[a-zA-Z0-9_-]+"
 
 
@@ -75,7 +80,14 @@ EOF
         fi
 
         echo "--> Creating virtualenv in $ENVDIR$NAME/"
-        $VIRTUALENV "$ENVDIR$NAME/"
+
+        # Check if we have -p in our argstring, and don't pass explicit Python if so
+        ARGS="${@:3}"
+        if [[ $ARGS == *"-p"* ]]; then
+            $VIRTUALENV $ENVDIR$NAME/ $ARGS
+        else
+            $VIRTUALENV $ENVDIR$NAME/ -p $PYTHON $ARGS
+        fi
 
         # Enter the venv
         venv $NAME
